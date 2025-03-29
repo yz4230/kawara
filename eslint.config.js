@@ -56,6 +56,8 @@ export default tseslint.config(
       // "@eslint-react/no-forward-ref": "off",
       // "@eslint-react/no-context-provider": "off",
       // "react-compiler/react-compiler": "warn",
+      "@typescript-eslint/ban-ts-comment": "off",
+      "@eslint-react/dom/no-dangerously-set-innerhtml": "off",
     },
   },
 );
