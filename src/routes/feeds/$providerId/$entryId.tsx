@@ -133,7 +133,7 @@ function RouteComponent() {
       </div>
       <Separator className="mt-4" />
       <div
-        className="prose mt-4 flex max-w-full flex-col whitespace-pre-line"
+        className="prose dark:prose-invert mt-4 flex max-w-full flex-col whitespace-pre-line"
         dangerouslySetInnerHTML={{ __html: response }}
       />
     </div>
