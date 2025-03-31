@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { invariant, isString } from "es-toolkit";
-import { Window } from "happy-dom";
+import { JSDOM } from "jsdom";
 import { LoaderCircleIcon } from "lucide-react";
 import { marked } from "marked";
 import { useCallback, type FormEvent } from "react";
@@ -18,10 +18,9 @@ export const Route = createFileRoute("/ai")({
 });
 
 async function fetchArticleContent(url: string) {
-  const window = new Window({ url });
-  window.document.body.innerHTML = await fetch(url).then((res) => res.text());
-  // @ts-ignore
-  return new Readability(window.document).parse();
+  const html = await fetch(url).then((res) => res.text());
+  const dom = new JSDOM(html);
+  return new Readability(dom.window.document).parse();
 }
 
 const summerizeWithAI = createServerFn({ method: "POST" })
