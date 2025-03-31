@@ -9,9 +9,9 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "db": "drizzle-kit",
-    "ui": "pnpm dlx shadcn@canary",
-    "auth": "pnpm dlx @better-auth/cli@latest",
-    "auth:generate": "pnpm dlx @better-auth/cli@latest generate --y --output ./src/lib/server/schema/auth.schema.ts && prettier --write ./src/lib/server/schema/auth.schema.ts",
+    "ui": "bunx shadcn@canary",
+    "auth": "bunx @better-auth/cli@latest",
+    "auth:generate": "bunx @better-auth/cli@latest generate --y --output ./src/lib/server/schema/auth.schema.ts && prettier --write ./src/lib/server/schema/auth.schema.ts",
     "inngest:dev": "inngest dev -u http://localhost:3000/api/inngest"
   },
   "dependencies": {
