@@ -12,10 +12,16 @@ export class ZennTrendingProvider implements Provider {
     const parser = new XMLParser({ ignoreAttributes: false });
     const xmlobj = parser.parse(xml);
     const obj = parse(minimalRssSchema, xmlobj);
-    return obj.rss.channel.item.map((item) => ({
-      title: item.title,
-      description: item.description,
-      link: item.link,
-    }));
+    return obj.rss.channel.item
+      .map((item) => ({
+        title: item.title,
+        description: item.description,
+        link: item.link,
+      }))
+      .filter(({ link }) => {
+        const url = new URL(link);
+        const parts = url.pathname.split("/");
+        return parts.at(2) === "articles";
+      });
   }
 }
