@@ -8,7 +8,7 @@ export const Route = createFileRoute("/feeds")({
 });
 
 const linkClassName = cn(
-  "grid size-14 place-items-center rounded-full border-gray-700 data-[status=active]:border-2",
+  "border-primary grid size-14 place-items-center rounded-full data-[status=active]:border-2",
 );
 
 function RouteComponent() {
@@ -16,8 +16,8 @@ function RouteComponent() {
     <div className="mx-auto flex max-w-3xl flex-col">
       <div className="flex flex-row gap-2 p-2">
         <Link to="/feeds" activeOptions={{ exact: true }} className={linkClassName}>
-          <span className="grid size-12 place-items-center rounded-full bg-black">
-            <HomeIcon className="text-white" />
+          <span className="bg-primary grid size-12 place-items-center rounded-full">
+            <HomeIcon className="text-primary-foreground" />
           </span>
         </Link>
         {Object.entries(providerMetas).map(([id, meta]) => (
