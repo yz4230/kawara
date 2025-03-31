@@ -1,6 +1,6 @@
 import { createAPIFileRoute } from "@tanstack/react-start/api";
 import { serve } from "inngest/edge";
-import { functions, inngest } from "~/inngest";
+import { functions, inngest } from "~/lib/server/inngest";
 
 const handler = serve({ client: inngest, functions });
 
