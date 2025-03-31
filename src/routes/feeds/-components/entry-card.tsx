@@ -1,12 +1,27 @@
-import type { FeedEntry } from "~/shared/types";
+import { Link } from "@tanstack/react-router";
+import { SparkleIcon } from "lucide-react";
+import { Button } from "~/lib/components/ui/button";
+import type { FeedEntry } from "../-types";
 
 export function EntryCard(props: { entry: FeedEntry }) {
+  const { entry } = props;
   return (
     <div className="flex flex-col border-t p-4 last:border-b">
-      <a href={props.entry.link} target="_blank" className="group">
-        <h2 className="text-lg font-bold group-hover:underline">{props.entry.title}</h2>
+      <a href={entry.link} target="_blank" className="group">
+        <h2 className="text-lg font-bold group-hover:underline">{entry.title}</h2>
       </a>
-      <p className="text-sm text-gray-500">{props.entry.description}</p>
+      <p className="line-clamp-2 text-sm text-gray-500">{entry.description}</p>
+      <div className="mt-2 flex justify-end">
+        <Button asChild>
+          <Link
+            to="/feeds/$providerId/$entryId"
+            params={{ providerId: entry.providerId, entryId: entry.id }}
+          >
+            <SparkleIcon className="size-4" />
+            <span>Follow up</span>
+          </Link>
+        </Button>
+      </div>
     </div>
   );
 }

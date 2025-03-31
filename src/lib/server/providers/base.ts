@@ -1,5 +1,10 @@
 import { array, object, string } from "valibot";
-import type { FeedEntry } from "~/shared/types";
+
+export interface FeedEntry {
+  title: string;
+  description: string;
+  link: string;
+}
 
 export interface Provider {
   id: string;
