@@ -1,74 +1,92 @@
-# [React TanStarter](https://github.com/dotnize/react-tanstarter)
+# Kawara
 
-A minimal starter template for 🏝️ TanStack Start.
+Kawara は開発者向けのトレンドフィードアグリゲーターです。GitHub や Zenn などの人気のあるプラットフォームから最新のトレンド情報を収集し、一箇所で閲覧できます。さらに、Google の Gemini AI を使用して記事の要約を日本語で提供します。
+
+## 特徴
+
+- **複数ソースからのフィード**: GitHub Trending と Zenn の記事を自動的に収集
+- **AI による要約**: Google Gemini AI を使用して記事の内容を日本語で要約
+- **認証機能**: Better Auth を使用したセキュアなユーザー認証
+- **自動更新**: Inngest を使用した定期的なフィード更新
+- **モダンな UI**: React と Tailwind CSS を使用した美しいインターフェース
+
+## 技術スタック
 
 - [React 19](https://react.dev) + [React Compiler](https://react.dev/learn/react-compiler)
 - TanStack [Start](https://tanstack.com/start/latest) + [Router](https://tanstack.com/router/latest) + [Query](https://tanstack.com/query/latest)
 - [Tailwind CSS v4](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/)
 - [Drizzle ORM](https://orm.drizzle.team/) + PostgreSQL
 - [Better Auth](https://www.better-auth.com/)
+- [Google Gemini AI](https://ai.google.dev/)
+- [Inngest](https://www.inngest.com/) (バックグラウンドジョブ)
 
-## Getting Started
+## セットアップ
 
-1. [Use this template](https://github.com/new?template_name=react-tanstarter&template_owner=dotnize) or clone this repository.
-
-2. Install dependencies:
-
-   ```bash
-   pnpm install # npm install
-   ```
-
-3. Create a `.env` file based on [`.env.example`](./.env.example).
-
-4. Push the schema to your database with drizzle-kit:
+1. リポジトリをクローンします:
 
    ```bash
-   pnpm db push # npm run db push
+   git clone https://github.com/yourusername/kawara.git
+   cd kawara
    ```
 
-   https://orm.drizzle.team/docs/migrations
-
-5. Run the development server:
+2. 依存関係をインストールします:
 
    ```bash
-   pnpm dev # npm run dev
+   bun install
    ```
 
-   The development server should be now running at [http://localhost:3000](http://localhost:3000).
+3. `.env.example` をコピーして `.env` ファイルを作成し、必要な環境変数を設定します:
 
-## Issue watchlist
+   ```bash
+   cp .env.example .env
+   ```
 
-- [React Compiler docs](https://react.dev/learn/react-compiler), [Working Group](https://github.com/reactwg/react-compiler/discussions) - React Compiler is still in beta. You can disable it in [app.config.ts](./app.config.ts#L15) if you prefer.
-- https://github.com/TanStack/router/discussions/2863 - TanStack Start is currently in beta and may still undergo major changes.
-- https://github.com/shadcn-ui/ui/discussions/6714 - We're using the `canary` version of shadcn/ui for Tailwind v4 support.
+   以下の環境変数を設定する必要があります:
+   - `DATABASE_URL`: PostgreSQL データベース接続文字列
+   - `BETTER_AUTH_SECRET`: 認証用のシークレットキー
+   - `GOOGLE_CLIENT_ID` と `GOOGLE_CLIENT_SECRET`: Google OAuth 認証用
+   - `GOOGLE_GENAI_API_KEY`: Google Gemini AI API キー
+   - `INNGEST_EVENT_KEY` と `INNGEST_SIGNING_KEY`: Inngest 用のキー
 
-## Auth
+4. データベーススキーマを作成します:
 
-Better Auth is currently configured for OAuth with GitHub, Google, and Discord, but can be easily modified to use other providers.
+   ```bash
+   bun db push
+   ```
 
-If you want to use email/password authentication or change providers, update the [auth config](./src/lib/server/auth.ts#L36) and [signin page](./src/routes/signin.tsx) with your own UI. You can use [shadcn/ui login blocks](https://ui.shadcn.com/blocks/login) or [@daveyplate/better-auth-ui](https://better-auth-ui.com/) as a starting point.
+5. 開発サーバーを起動します:
 
-## Goodies
+   ```bash
+   bun dev
+   ```
 
-#### Scripts
+   開発サーバーは [http://localhost:3000](http://localhost:3000) で実行されます。
 
-These scripts in [package.json](./package.json#L5) use **pnpm** by default, but you can modify them to use your preferred package manager.
+6. Inngest 開発サーバーを別のターミナルで起動します:
 
-- **`auth:generate`** - Regenerate the [auth db schema](./src/lib/server/schema/auth.schema.ts) if you've made changes to your Better Auth [config](./src/lib/server/auth.ts).
-- **`db`** - Run drizzle-kit commands. (e.g. `pnpm db generate` to generate a migration)
-- **`ui`** - The shadcn/ui CLI. (e.g. `pnpm ui add button` to add the button component)
-- **`format`** and **`lint`** - Run Prettier and ESLint.
+   ```bash
+   bun inngest:dev
+   ```
 
-#### Utilities
+## フィードプロバイダー
 
-- [`auth-guard.ts`](./src/lib/middleware/auth-guard.ts) - Sample middleware for forcing authentication on server functions. ([see #5](https://github.com/dotnize/react-tanstarter/issues/5))
-- [`ThemeToggle.tsx`](./src/lib/components/ThemeToggle.tsx) - A simple component to toggle between light and dark mode. ([#7](https://github.com/dotnize/react-tanstarter/issues/7))
+現在、以下のフィードプロバイダーがサポートされています:
 
-## Building for production
+- **GitHub Trending**: GitHub で人気のリポジトリを表示
+- **Zenn トレンド**: Zenn で人気の技術記事を表示
 
-Read the [hosting docs](https://tanstack.com/start/latest/docs/framework/react/hosting) for information on how to deploy your TanStack Start app.
+新しいプロバイダーを追加するには、`src/lib/server/providers` ディレクトリに新しいプロバイダークラスを作成し、`all.ts` ファイルに追加します。
 
-## Acknowledgements
+## AI 要約機能
 
-- [nekochan0122/tanstack-boilerplate](https://github.com/nekochan0122/tanstack-boilerplate) - A batteries-included TanStack Start boilerplate that inspired some patterns in this template. If you're looking for a more feature-rich starter, check it out!
-- [AlexGaudon/tanstarter-better-auth](https://github.com/AlexGaudon/tanstarter-better-auth) for his own better-auth implementation.
+Kawara は Google の Gemini AI を使用して、記事の内容を日本語で要約します。この機能を使用するには、`.env` ファイルに有効な `GOOGLE_GENAI_API_KEY` を設定する必要があります。
+
+要約のプロンプトは `src/prompts/summerize.txt` で設定できます。
+
+## デプロイ
+
+本番環境へのデプロイについては、[TanStack Start のホスティングドキュメント](https://tanstack.com/start/latest/docs/framework/react/hosting)を参照してください。
+
+## ライセンス
+
+[MIT](LICENSE)
