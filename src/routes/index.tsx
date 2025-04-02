@@ -1,6 +1,6 @@
 import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
 import authClient from "~/lib/auth-client";
-import ThemeToggle from "~/lib/components/ThemeToggle";
+import ThemeButton from "~/lib/components/ThemeButton";
 import { Button } from "~/lib/components/ui/button";
 
 export const Route = createFileRoute("/")({
@@ -59,7 +59,7 @@ function Home() {
         </div>
       )}
 
-      <ThemeToggle />
+      <ThemeButton />
 
       <a
         className="text-muted-foreground hover:text-foreground underline"

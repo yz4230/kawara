@@ -12,6 +12,7 @@ import { getWebRequest } from "@tanstack/react-start/server";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
+import { updateTheme } from "~/lib/components/ThemeButton";
 import { auth } from "~/lib/server/auth";
 import appCss from "~/lib/styles/app.css?url";
 
@@ -67,12 +68,7 @@ function RootDocument({ children }: { readonly children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <ScriptOnce>
-          {`document.documentElement.classList.toggle(
-            'dark',
-            localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
-            )`}
-        </ScriptOnce>
+        <ScriptOnce>{`(${updateTheme.toString()})()`}</ScriptOnce>
 
         {children}
 
