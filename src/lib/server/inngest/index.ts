@@ -6,16 +6,6 @@ import { feedEntry } from "~/lib/server/schema";
 
 export const inngest = new Inngest({ id: "kawara" });
 
-// Your new function:
-const helloWorld = inngest.createFunction(
-  { id: "hello-world" },
-  { event: "test/hello.world" },
-  async ({ event, step }) => {
-    await step.sleep("wait-a-moment", "1s");
-    return { message: `Hello ${event.data.email}!` };
-  },
-);
-
 const collectFeedEntries = inngest.createFunction(
   { id: "collect-feed-entries", timeouts: { finish: "10s" } },
   { event: "feed/collect" },
@@ -47,4 +37,4 @@ const collectFeedEntries = inngest.createFunction(
 );
 
 // Add the function to the exported array:
-export const functions = [helloWorld, collectFeedEntries];
+export const functions = [collectFeedEntries];
