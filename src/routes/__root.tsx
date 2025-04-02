@@ -6,32 +6,23 @@ import {
   ScriptOnce,
   Scripts,
 } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
-import { getWebRequest } from "@tanstack/react-start/server";
 
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 import { updateTheme } from "~/lib/components/ThemeButton";
-import { auth } from "~/lib/server/auth";
 import appCss from "~/lib/styles/app.css?url";
-
-const getUser = createServerFn({ method: "GET" }).handler(async () => {
-  const { headers } = getWebRequest()!;
-  const session = await auth.api.getSession({ headers });
-
-  return session?.user || null;
-});
+import { userQuery } from "./-queries";
+import { getUser } from "./-root-fns";
+import RootLayout from "./-root-layout";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
   user: Awaited<ReturnType<typeof getUser>>;
 }>()({
   beforeLoad: async ({ context }) => {
-    const user = await context.queryClient.fetchQuery({
-      queryKey: ["user"],
-      queryFn: ({ signal }) => getUser({ signal }),
-    }); // we're using react-query for caching, see router.tsx
+    // we're using react-query for caching, see router.tsx
+    const user = await context.queryClient.fetchQuery(userQuery());
     return { user };
   },
   head: () => ({
@@ -70,7 +61,7 @@ function RootDocument({ children }: { readonly children: React.ReactNode }) {
       <body>
         <ScriptOnce>{`(${updateTheme.toString()})()`}</ScriptOnce>
 
-        {children}
+        <RootLayout>{children}</RootLayout>
 
         <ReactQueryDevtools buttonPosition="bottom-left" />
         <TanStackRouterDevtools position="bottom-right" />
