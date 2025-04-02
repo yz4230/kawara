@@ -1,9 +1,14 @@
 export const ProviderId = {
   GithubTrending: "github-trending",
   ZennTrending: "zenn-trending",
+  Gihyo: "gihyo",
 } as const;
 
-export const providerIds = [ProviderId.GithubTrending, ProviderId.ZennTrending] as const;
+export const providerIds = [
+  ProviderId.GithubTrending,
+  ProviderId.ZennTrending,
+  ProviderId.Gihyo,
+] as const;
 export type ProviderId = (typeof providerIds)[number];
 
 type ProviderMeta = {
@@ -22,5 +27,12 @@ export const providerMetas: Record<ProviderId, ProviderMeta> = {
     name: "Zennのトレンド",
     description: "現在Zennでトレンドとなっている投稿のRSSフィードです",
     icon: "https://static.zenn.studio/images/logo-only-dark.png",
+  },
+  [ProviderId.Gihyo]: {
+    name: "gihyo.jp",
+    description:
+      "gihyo.jpは、技術評論社が運営しているWebメディアです。エンジニアやデザイナー向けの記事のほか、" +
+      "ビジネスシーンを含めITを活用している人向けの記事を掲載しています。",
+    icon: "https://gihyo.jp/favicon.svg",
   },
 };

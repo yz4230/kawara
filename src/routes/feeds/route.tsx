@@ -31,7 +31,7 @@ function RouteComponent() {
               src={meta.icon}
               alt={meta.name}
               title={meta.name}
-              className="size-12 rounded-full select-none"
+              className="bg-muted size-12 rounded-full select-none"
             />
           </Link>
         ))}
