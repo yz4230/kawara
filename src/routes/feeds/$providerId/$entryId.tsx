@@ -8,7 +8,7 @@ import { JSDOM } from "jsdom";
 import { ExternalLinkIcon } from "lucide-react";
 import { marked } from "marked";
 import { useEffect, useState } from "react";
-import { object, pipe, string, url } from "valibot";
+import { object, string } from "valibot";
 import { Separator } from "~/lib/components/ui/separator";
 import { db } from "~/lib/server/db";
 import SYSMTEM_INSTRUCTION from "~/prompts/summerize.txt?raw";
@@ -22,11 +22,16 @@ async function fetchArticleContent(url: string) {
 const summerizeWithAI = createServerFn({ method: "GET", response: "raw" })
   .validator(
     object({
-      url: pipe(string(), url()),
+      entryId: string(),
     }),
   )
   .handler(async ({ data, signal }) => {
-    const article = await fetchArticleContent(data.url);
+    const entry = await db.query.feedEntry.findFirst({
+      where: (feedEntry, { eq }) => eq(feedEntry.id, data.entryId),
+    });
+    if (!entry) throw notFound();
+
+    const article = await fetchArticleContent(entry.link);
     invariant(article?.textContent, "Failed to parse article content");
 
     const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_GENAI_API_KEY });
@@ -91,7 +96,7 @@ function RouteComponent() {
   useEffect(() => {
     const controller = new AbortController();
 
-    summerizeWithAI({ data: { url: entry.link }, signal: controller.signal }).then(
+    summerizeWithAI({ data: { entryId: entry.id }, signal: controller.signal }).then(
       async (res) => {
         const reader = res.body?.getReader();
         if (!reader) return;
@@ -113,7 +118,7 @@ function RouteComponent() {
     return () => {
       controller.abort();
     };
-  }, [entry.link]);
+  }, [entry.id]);
 
   return (
     <div className="flex flex-col">
