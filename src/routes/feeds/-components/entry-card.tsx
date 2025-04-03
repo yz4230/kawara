@@ -1,16 +1,16 @@
 import { Link } from "@tanstack/react-router";
 import { SparkleIcon } from "lucide-react";
 import { Button } from "~/lib/components/ui/button";
-import type { FeedEntry } from "../-types";
+import type { FeedEntryModel } from "../-types";
 
-export function EntryCard(props: { entry: FeedEntry }) {
+export function EntryCard(props: { entry: FeedEntryModel }) {
   const { entry } = props;
   return (
     <div className="flex flex-col border-t p-4 last:border-b">
-      <a href={entry.link} target="_blank" className="group">
+      <a href={entry.url ?? "#"} target="_blank" className="group">
         <h2 className="text-lg font-bold group-hover:underline">{entry.title}</h2>
       </a>
-      <p className="text-muted-foreground line-clamp-2 text-sm">{entry.description}</p>
+      <p className="text-muted-foreground line-clamp-2 text-sm">{entry.contentText}</p>
       <div className="mt-2 flex justify-end">
         <Button asChild>
           <Link

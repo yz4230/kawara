@@ -1,14 +1,22 @@
 import { array, object, string } from "valibot";
 
-export interface FeedEntry {
-  title: string;
-  description: string;
-  link: string;
-}
+export type RetrievedFeedEntry = {
+  identifier: string;
+  title?: string;
+  contentHTML?: string;
+  contentText?: string;
+  url?: string;
+  externalURL?: string;
+  summary?: string;
+  imageURL?: string;
+  bannerImageURL?: string;
+  datePublished?: Date;
+  dateModified?: Date;
+};
 
 export interface Provider {
   id: string;
-  fetchEntries: () => Promise<FeedEntry[]>;
+  retrieveFeed: () => Promise<RetrievedFeedEntry[]>;
 }
 
 export const minimalRssSchema = object({

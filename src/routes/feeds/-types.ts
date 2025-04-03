@@ -1,7 +1,3 @@
-export type FeedEntry = {
-  id: string;
-  providerId: string;
-  title: string;
-  description: string;
-  link: string;
-};
+import type { feedEntry } from "~/lib/server/schema/feed.schema";
+
+export type FeedEntryModel = typeof feedEntry.$inferSelect;

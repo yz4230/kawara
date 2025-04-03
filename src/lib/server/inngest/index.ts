@@ -1,4 +1,3 @@
-import { differenceBy } from "es-toolkit";
 import { Inngest } from "inngest";
 import { db } from "~/lib/server/db";
 import { providers } from "~/lib/server/providers/all";
@@ -7,26 +6,41 @@ import { feedEntry } from "~/lib/server/schema";
 export const inngest = new Inngest({ id: "kawara" });
 
 const collectFeedEntries = inngest.createFunction(
-  { id: "collect-feed-entries", timeouts: { finish: "10s" } },
+  {
+    id: "collect-feed-entries",
+    timeouts: { finish: "10s" },
+    optimizeParallelism: true,
+  },
   { event: "feed/collect" },
   async ({ step, logger }) => {
     await Promise.all(
       providers.map((provider) =>
         step.run(`fetch-${provider.id}`, async () => {
-          const entries = await provider.fetchEntries();
-          const lastEntryLinks = await db.query.feedEntry.findMany({
+          const entries = await provider.retrieveFeed();
+          const existings = await db.query.feedEntry.findMany({
             where: (feedEntry, { eq }) => eq(feedEntry.providerId, provider.id),
-            limit: entries.length,
+            columns: { identifier: true },
           });
-          const newEntries = differenceBy(entries, lastEntryLinks, (entry) => entry.link);
-          logger.info(`Found ${newEntries.length} new entries from ${provider.id}`);
+          const existingIdents = new Set(existings.map((e) => e.identifier));
+          const newEntries = entries.filter((e) => !existingIdents.has(e.identifier));
+
+          logger.info(`Fetched ${newEntries.length} new entries from ${provider.id}`);
+
           if (newEntries.length > 0) {
             await db.insert(feedEntry).values(
               newEntries.map((entry) => ({
                 providerId: provider.id,
+                identifier: entry.identifier,
                 title: entry.title,
-                description: entry.description,
-                link: entry.link,
+                contentHTML: entry.contentHTML,
+                contentText: entry.contentText,
+                url: entry.url,
+                externalURL: entry.externalURL,
+                summary: entry.summary,
+                imageURL: entry.imageURL,
+                bannerImageURL: entry.bannerImageURL,
+                datePublished: entry.datePublished,
+                dateModified: entry.dateModified,
               })),
             );
           }

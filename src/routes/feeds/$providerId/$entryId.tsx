@@ -30,8 +30,9 @@ const summerizeWithAI = createServerFn({ method: "GET", response: "raw" })
       where: (feedEntry, { eq }) => eq(feedEntry.id, data.entryId),
     });
     if (!entry) throw notFound();
+    if (!entry.url) throw new Error("Entry URL is missing");
 
-    const article = await fetchArticleContent(entry.link);
+    const article = await fetchArticleContent(entry.url);
     invariant(article?.textContent, "Failed to parse article content");
 
     const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_GENAI_API_KEY });
@@ -84,9 +85,12 @@ export const Route = createFileRoute("/feeds/$providerId/$entryId")({
   },
 });
 
-function getDomain(url: string) {
+function extractDomain(url: string) {
   const { hostname } = new URL(url);
-  return hostname.replace("www.", "");
+  const domainParts = hostname.split(".");
+  // if the domain starts with "www.", remove it
+  if (domainParts.at(0) === "www") domainParts.shift();
+  return domainParts.join(".");
 }
 
 function RouteComponent() {
@@ -127,14 +131,16 @@ function RouteComponent() {
         <div className="text-muted-foreground text-sm">
           {format(entry.createdAt, "yyyy/MM/dd HH:mm")}
         </div>
-        <a
-          href={entry.link}
-          target="_blank"
-          className="text-muted-foreground flex items-center gap-1 text-sm"
-        >
-          <span>{getDomain(entry.link)}</span>
-          <ExternalLinkIcon className="size-3.5" />
-        </a>
+        {entry.url && (
+          <a
+            href={entry.url}
+            target="_blank"
+            className="text-muted-foreground flex items-center gap-1 text-sm"
+          >
+            <span>{extractDomain(entry.url)}</span>
+            <ExternalLinkIcon className="size-3.5" />
+          </a>
+        )}
       </div>
       <Separator className="mt-4" />
       <div
