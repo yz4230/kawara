@@ -1,12 +1,11 @@
 import { char, index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { uuidv7 } from "uuidv7";
 
+const now = () => new Date();
+
 const timestamps = {
-  createdAt: timestamp().notNull().defaultNow(),
-  updatedAt: timestamp()
-    .notNull()
-    .defaultNow()
-    .$onUpdateFn(() => new Date()),
+  createdAt: timestamp().notNull().$defaultFn(now),
+  updatedAt: timestamp().notNull().$defaultFn(now).$onUpdateFn(now),
 };
 
 export const feedEntry = pgTable(
