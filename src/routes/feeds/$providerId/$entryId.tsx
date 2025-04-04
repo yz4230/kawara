@@ -71,6 +71,14 @@ const getOriginalEntry = createServerFn({ method: "GET" })
     const entry = await db.query.feedEntry.findFirst({
       where: (feedEntry, { and, eq }) =>
         and(eq(feedEntry.providerId, data.providerId), eq(feedEntry.id, data.entryId)),
+      orderBy: (feedEntry, { desc, sql }) => {
+        const sortKeys = [
+          feedEntry.datePublished,
+          feedEntry.dateModified,
+          feedEntry.createdAt,
+        ] as const;
+        return desc(sql`coalesce(${sortKeys.join(", ")})`);
+      },
     });
     if (!entry) throw notFound();
     return entry;
@@ -128,9 +136,11 @@ function RouteComponent() {
     <div className="flex flex-col">
       <h2 className="mt-4 text-2xl font-bold">{entry.title}</h2>
       <div className="mt-2 flex items-center gap-3">
-        <div className="text-muted-foreground text-sm">
-          {format(entry.createdAt, "yyyy/MM/dd HH:mm")}
-        </div>
+        {entry.datePublished && (
+          <div className="text-muted-foreground text-sm">
+            {format(entry.datePublished, "yyyy/MM/dd HH:mm")}
+          </div>
+        )}
         {entry.url && (
           <a
             href={entry.url}

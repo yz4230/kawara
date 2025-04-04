@@ -18,7 +18,7 @@ export class GithubTrendingProvider implements Provider {
       invariant(href, "href is required");
       const link = new URL(href, baseUrl).toString();
       const description = $(el).find("p").text().trim();
-      entries.push({ identifier: link, title, url: link, contentText: description });
+      entries.push({ identifier: link, title, url: link, summary: description });
     }
     return entries;
   }

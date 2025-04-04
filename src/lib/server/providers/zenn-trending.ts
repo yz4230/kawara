@@ -1,7 +1,34 @@
 import { XMLParser } from "fast-xml-parser";
-import { parse } from "valibot";
+import { array, object, optional, parse, string } from "valibot";
 import { ProviderId } from "~/shared/provider";
-import { minimalRssSchema, type Provider, type RetrievedFeedEntry } from "./base";
+import { rfc822Date, type Provider, type RetrievedFeedEntry } from "./base";
+
+const RSSSchema = object({
+  rss: object({
+    channel: object({
+      item: array(
+        object({
+          title: string(),
+          description: string(),
+          link: string(),
+          guid: object({
+            "#text": string(),
+            "@_isPermaLink": string(),
+          }),
+          pubDate: rfc822Date(),
+          enclosure: optional(
+            object({
+              "@_url": string(),
+              "@_length": string(),
+              "@_type": string(),
+            }),
+          ),
+          "dc:creator": string(),
+        }),
+      ),
+    }),
+  }),
+});
 
 export class ZennTrendingProvider implements Provider {
   id = ProviderId.ZennTrending;
@@ -11,7 +38,7 @@ export class ZennTrendingProvider implements Provider {
     const xml = await res.text();
     const parser = new XMLParser({ ignoreAttributes: false });
     const xmlobj = parser.parse(xml);
-    const obj = parse(minimalRssSchema, xmlobj);
+    const obj = parse(RSSSchema, xmlobj);
     return obj.rss.channel.item
       .filter(({ link }) => {
         const url = new URL(link);
@@ -19,10 +46,12 @@ export class ZennTrendingProvider implements Provider {
         return parts.at(2) === "articles";
       })
       .map<RetrievedFeedEntry>((item) => ({
-        identifier: item.link,
+        identifier: item.guid["#text"],
         title: item.title,
-        contentText: item.description,
         url: item.link,
+        summary: item.description,
+        imageURL: item.enclosure?.["@_url"],
+        datePublished: item.pubDate,
       }));
   }
 }

@@ -1,7 +1,26 @@
 import { XMLParser } from "fast-xml-parser";
-import { parse } from "valibot";
+import { array, object, parse, string } from "valibot";
 import { ProviderId } from "~/shared/provider";
-import { minimalRssSchema, type Provider, type RetrievedFeedEntry } from "./base";
+import { rfc822Date, type Provider, type RetrievedFeedEntry } from "./base";
+
+const RSSSchema = object({
+  rss: object({
+    channel: object({
+      item: array(
+        object({
+          title: string(),
+          link: string(),
+          pubDate: rfc822Date(),
+          description: string(),
+          guid: object({
+            "#text": string(),
+            "@_isPermaLink": string(),
+          }),
+        }),
+      ),
+    }),
+  }),
+});
 
 export class GihyoProvider implements Provider {
   id = ProviderId.Gihyo;
@@ -11,12 +30,13 @@ export class GihyoProvider implements Provider {
     const xml = await res.text();
     const parser = new XMLParser({ ignoreAttributes: false });
     const xmlobj = parser.parse(xml);
-    const obj = parse(minimalRssSchema, xmlobj);
+    const obj = parse(RSSSchema, xmlobj);
     return obj.rss.channel.item.map<RetrievedFeedEntry>((item) => ({
-      identifier: item.link,
+      identifier: item.guid["#text"],
       title: item.title,
-      contentText: item.description,
       url: item.link,
+      summary: item.description,
+      datePublished: item.pubDate,
     }));
   }
 }

@@ -1,4 +1,5 @@
-import { array, object, string } from "valibot";
+import { toDate } from "date-fns";
+import { pipe, string, transform } from "valibot";
 
 export type RetrievedFeedEntry = {
   identifier: string;
@@ -19,16 +20,5 @@ export interface Provider {
   retrieveFeed: () => Promise<RetrievedFeedEntry[]>;
 }
 
-export const minimalRssSchema = object({
-  rss: object({
-    channel: object({
-      item: array(
-        object({
-          title: string(),
-          link: string(),
-          description: string(),
-        }),
-      ),
-    }),
-  }),
-});
+/** (e.g.) Thu, 03 Apr 2025 12:56:48 GMT */
+export const rfc822Date = () => pipe(string(), transform(toDate));

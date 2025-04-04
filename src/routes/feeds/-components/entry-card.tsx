@@ -10,7 +10,7 @@ export function EntryCard(props: { entry: FeedEntryModel }) {
       <a href={entry.url ?? "#"} target="_blank" className="group">
         <h2 className="text-lg font-bold group-hover:underline">{entry.title}</h2>
       </a>
-      <p className="text-muted-foreground line-clamp-2 text-sm">{entry.contentText}</p>
+      <p className="text-muted-foreground line-clamp-2 text-sm">{entry.summary}</p>
       <div className="mt-2 flex justify-end">
         <Button asChild>
           <Link
