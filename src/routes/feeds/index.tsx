@@ -5,7 +5,14 @@ import { EntryCard } from "./-components/entry-card";
 
 const fetchFeedEntries = createServerFn({ method: "GET" }).handler(async () => {
   const entries = await db.query.feedEntry.findMany({
-    orderBy: (feedEntry, { desc }) => desc(feedEntry.updatedAt),
+    orderBy: (feedEntry, { desc, sql }) => {
+      const sortKeys = [
+        feedEntry.datePublished,
+        feedEntry.dateModified,
+        feedEntry.createdAt,
+      ] as const;
+      return desc(sql`coalesce(${sortKeys.join(", ")})`);
+    },
   });
   return entries;
 });

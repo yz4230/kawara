@@ -12,6 +12,7 @@ import { object, string } from "valibot";
 import { Separator } from "~/lib/components/ui/separator";
 import { db } from "~/lib/server/db";
 import SYSMTEM_INSTRUCTION from "~/prompts/summerize.txt?raw";
+import { DateFormat } from "~/shared/format";
 
 async function fetchArticleContent(url: string) {
   const html = await fetch(url).then((res) => res.text());
@@ -71,14 +72,6 @@ const getOriginalEntry = createServerFn({ method: "GET" })
     const entry = await db.query.feedEntry.findFirst({
       where: (feedEntry, { and, eq }) =>
         and(eq(feedEntry.providerId, data.providerId), eq(feedEntry.id, data.entryId)),
-      orderBy: (feedEntry, { desc, sql }) => {
-        const sortKeys = [
-          feedEntry.datePublished,
-          feedEntry.dateModified,
-          feedEntry.createdAt,
-        ] as const;
-        return desc(sql`coalesce(${sortKeys.join(", ")})`);
-      },
     });
     if (!entry) throw notFound();
     return entry;
@@ -138,7 +131,7 @@ function RouteComponent() {
       <div className="mt-2 flex items-center gap-3">
         {entry.datePublished && (
           <div className="text-muted-foreground text-sm">
-            {format(entry.datePublished, "yyyy/MM/dd HH:mm")}
+            {format(entry.datePublished, DateFormat.dateTime)}
           </div>
         )}
         {entry.url && (
