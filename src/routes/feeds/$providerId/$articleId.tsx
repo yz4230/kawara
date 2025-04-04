@@ -61,7 +61,7 @@ const summerizeWithAI = createServerFn({ method: "GET", response: "raw" })
     });
   });
 
-const getOriginalArticle = createServerFn({ method: "GET" })
+const fetchArticle = createServerFn({ method: "GET" })
   .validator(
     object({
       providerId: string(),
@@ -81,7 +81,7 @@ export const Route = createFileRoute("/feeds/$providerId/$articleId")({
   component: RouteComponent,
   loader: async ({ params }) => {
     const { providerId, articleId } = params;
-    const article = await getOriginalArticle({
+    const article = await fetchArticle({
       data: { providerId, articleId },
     });
     return { article };

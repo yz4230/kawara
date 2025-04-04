@@ -5,7 +5,7 @@ import { db } from "~/lib/server/db";
 import { providerIds, type ProviderId } from "~/shared/provider";
 import { ArticleCard } from "../-components/article-card";
 
-const fetchArticles = createServerFn({ method: "GET" })
+const fetchArticlesByProviderId = createServerFn({ method: "GET" })
   .validator(object({ providerId: picklist(providerIds) }))
   .handler(async ({ data }) => {
     const articles = await db.query.articles.findMany({
@@ -25,7 +25,7 @@ const fetchArticles = createServerFn({ method: "GET" })
 export const Route = createFileRoute("/feeds/$providerId/")({
   component: RouteComponent,
   loader: async ({ params }) => {
-    const articles = await fetchArticles({
+    const articles = await fetchArticlesByProviderId({
       data: { providerId: params.providerId as ProviderId },
     });
     return { articles };
