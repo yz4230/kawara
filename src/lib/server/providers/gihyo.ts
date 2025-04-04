@@ -1,7 +1,7 @@
 import { XMLParser } from "fast-xml-parser";
 import { array, object, parse, string } from "valibot";
 import { ProviderId } from "~/shared/provider";
-import { rfc822Date, type Provider, type RetrievedFeedEntry } from "./base";
+import { rfc822Date, type Provider, type RetrievedArticle } from "./base";
 
 const RSSSchema = object({
   rss: object({
@@ -31,7 +31,7 @@ export class GihyoProvider implements Provider {
     const parser = new XMLParser({ ignoreAttributes: false });
     const xmlobj = parser.parse(xml);
     const obj = parse(RSSSchema, xmlobj);
-    return obj.rss.channel.item.map<RetrievedFeedEntry>((item) => ({
+    return obj.rss.channel.item.map<RetrievedArticle>((item) => ({
       identifier: item.guid["#text"],
       title: item.title,
       url: item.link,

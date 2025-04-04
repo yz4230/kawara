@@ -1,7 +1,7 @@
 import { XMLParser } from "fast-xml-parser";
 import { array, object, optional, parse, string } from "valibot";
 import { ProviderId } from "~/shared/provider";
-import { rfc822Date, type Provider, type RetrievedFeedEntry } from "./base";
+import { rfc822Date, type Provider, type RetrievedArticle } from "./base";
 
 const RSSSchema = object({
   rss: object({
@@ -45,7 +45,7 @@ export class ZennTrendingProvider implements Provider {
         const parts = url.pathname.split("/");
         return parts.at(2) === "articles";
       })
-      .map<RetrievedFeedEntry>((item) => ({
+      .map<RetrievedArticle>((item) => ({
         identifier: item.guid["#text"],
         title: item.title,
         url: item.link,

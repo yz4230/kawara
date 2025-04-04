@@ -1,3 +1,3 @@
-import type { feedEntry } from "~/lib/server/schema/feed.schema";
+import type { articles } from "~/lib/server/schema/feed.schema";
 
-export type FeedEntryModel = typeof feedEntry.$inferSelect;
+export type ArticleModel = typeof articles.$inferSelect;

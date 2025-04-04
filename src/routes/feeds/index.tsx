@@ -1,37 +1,36 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "~/lib/server/db";
-import { EntryCard } from "./-components/entry-card";
+import { ArticleCard } from "./-components/article-card";
 
-const fetchFeedEntries = createServerFn({ method: "GET" }).handler(async () => {
-  const entries = await db.query.feedEntry.findMany({
-    orderBy: (feedEntry, { desc, sql }) => {
+const fetchArticles = createServerFn({ method: "GET" }).handler(async () => {
+  return await db.query.articles.findMany({
+    orderBy: (article, { desc, sql }) => {
       const sortKeys = [
-        feedEntry.datePublished,
-        feedEntry.dateModified,
-        feedEntry.createdAt,
+        article.datePublished,
+        article.dateModified,
+        article.createdAt,
       ] as const;
       return desc(sql`coalesce(${sortKeys.join(", ")})`);
     },
   });
-  return entries;
 });
 
 export const Route = createFileRoute("/feeds/")({
   component: RouteComponent,
   loader: async () => {
-    const entries = await fetchFeedEntries();
-    return { entries };
+    const articles = await fetchArticles();
+    return { articles };
   },
 });
 
 function RouteComponent() {
-  const { entries } = Route.useLoaderData();
+  const { articles } = Route.useLoaderData();
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col border-x">
-      {entries.map((entry) => (
-        <EntryCard key={entry.id} entry={entry} />
+      {articles.map((article) => (
+        <ArticleCard key={article.id} article={article} />
       ))}
     </div>
   );

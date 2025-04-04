@@ -1,13 +1,13 @@
 import { Inngest } from "inngest";
 import { db } from "~/lib/server/db";
 import { providers } from "~/lib/server/providers/all";
-import { feedEntry } from "~/lib/server/schema";
+import { articles } from "~/lib/server/schema";
 
 export const inngest = new Inngest({ id: "kawara" });
 
-const collectFeedEntries = inngest.createFunction(
+const collectFeed = inngest.createFunction(
   {
-    id: "collect-feed-entries",
+    id: "collect-feed",
     timeouts: { finish: "10s" },
     optimizeParallelism: true,
   },
@@ -16,31 +16,33 @@ const collectFeedEntries = inngest.createFunction(
     await Promise.all(
       providers.map((provider) =>
         step.run(`fetch-${provider.id}`, async () => {
-          const entries = await provider.retrieveFeed();
-          const existings = await db.query.feedEntry.findMany({
-            where: (feedEntry, { eq }) => eq(feedEntry.providerId, provider.id),
+          const retrievedArticles = await provider.retrieveFeed();
+          const existings = await db.query.articles.findMany({
+            where: (articles, { eq }) => eq(articles.providerId, provider.id),
             columns: { identifier: true },
           });
-          const existingIdents = new Set(existings.map((e) => e.identifier));
-          const newEntries = entries.filter((e) => !existingIdents.has(e.identifier));
+          const existingIdents = new Set(existings.map((article) => article.identifier));
+          const newArticles = retrievedArticles.filter(
+            (article) => !existingIdents.has(article.identifier),
+          );
 
-          logger.info(`Fetched ${newEntries.length} new entries from ${provider.id}`);
+          logger.info(`Fetched ${newArticles.length} new articles from ${provider.id}`);
 
-          if (newEntries.length > 0) {
-            await db.insert(feedEntry).values(
-              newEntries.map((entry) => ({
+          if (newArticles.length > 0) {
+            await db.insert(articles).values(
+              newArticles.map((article) => ({
                 providerId: provider.id,
-                identifier: entry.identifier,
-                title: entry.title,
-                contentHTML: entry.contentHTML,
-                contentText: entry.contentText,
-                url: entry.url,
-                externalURL: entry.externalURL,
-                summary: entry.summary,
-                imageURL: entry.imageURL,
-                bannerImageURL: entry.bannerImageURL,
-                datePublished: entry.datePublished,
-                dateModified: entry.dateModified,
+                identifier: article.identifier,
+                title: article.title,
+                contentHTML: article.contentHTML,
+                contentText: article.contentText,
+                url: article.url,
+                externalURL: article.externalURL,
+                summary: article.summary,
+                imageURL: article.imageURL,
+                bannerImageURL: article.bannerImageURL,
+                datePublished: article.datePublished,
+                dateModified: article.dateModified,
               })),
             );
           }
@@ -51,4 +53,4 @@ const collectFeedEntries = inngest.createFunction(
 );
 
 // Add the function to the exported array:
-export const functions = [collectFeedEntries];
+export const functions = [collectFeed];

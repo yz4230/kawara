@@ -18,7 +18,7 @@ import { Route as IndexImport } from './routes/index'
 import { Route as FeedsIndexImport } from './routes/feeds/index'
 import { Route as DashboardIndexImport } from './routes/dashboard/index'
 import { Route as FeedsProviderIdIndexImport } from './routes/feeds/$providerId/index'
-import { Route as FeedsProviderIdEntryIdImport } from './routes/feeds/$providerId/$entryId'
+import { Route as FeedsProviderIdArticleIdImport } from './routes/feeds/$providerId/$articleId'
 
 // Create/Update Routes
 
@@ -64,9 +64,9 @@ const FeedsProviderIdIndexRoute = FeedsProviderIdIndexImport.update({
   getParentRoute: () => FeedsRouteRoute,
 } as any)
 
-const FeedsProviderIdEntryIdRoute = FeedsProviderIdEntryIdImport.update({
-  id: '/$providerId/$entryId',
-  path: '/$providerId/$entryId',
+const FeedsProviderIdArticleIdRoute = FeedsProviderIdArticleIdImport.update({
+  id: '/$providerId/$articleId',
+  path: '/$providerId/$articleId',
   getParentRoute: () => FeedsRouteRoute,
 } as any)
 
@@ -116,11 +116,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeedsIndexImport
       parentRoute: typeof FeedsRouteImport
     }
-    '/feeds/$providerId/$entryId': {
-      id: '/feeds/$providerId/$entryId'
-      path: '/$providerId/$entryId'
-      fullPath: '/feeds/$providerId/$entryId'
-      preLoaderRoute: typeof FeedsProviderIdEntryIdImport
+    '/feeds/$providerId/$articleId': {
+      id: '/feeds/$providerId/$articleId'
+      path: '/$providerId/$articleId'
+      fullPath: '/feeds/$providerId/$articleId'
+      preLoaderRoute: typeof FeedsProviderIdArticleIdImport
       parentRoute: typeof FeedsRouteImport
     }
     '/feeds/$providerId/': {
@@ -149,13 +149,13 @@ const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
 
 interface FeedsRouteRouteChildren {
   FeedsIndexRoute: typeof FeedsIndexRoute
-  FeedsProviderIdEntryIdRoute: typeof FeedsProviderIdEntryIdRoute
+  FeedsProviderIdArticleIdRoute: typeof FeedsProviderIdArticleIdRoute
   FeedsProviderIdIndexRoute: typeof FeedsProviderIdIndexRoute
 }
 
 const FeedsRouteRouteChildren: FeedsRouteRouteChildren = {
   FeedsIndexRoute: FeedsIndexRoute,
-  FeedsProviderIdEntryIdRoute: FeedsProviderIdEntryIdRoute,
+  FeedsProviderIdArticleIdRoute: FeedsProviderIdArticleIdRoute,
   FeedsProviderIdIndexRoute: FeedsProviderIdIndexRoute,
 }
 
@@ -170,7 +170,7 @@ export interface FileRoutesByFullPath {
   '/signin': typeof SigninRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/feeds/': typeof FeedsIndexRoute
-  '/feeds/$providerId/$entryId': typeof FeedsProviderIdEntryIdRoute
+  '/feeds/$providerId/$articleId': typeof FeedsProviderIdArticleIdRoute
   '/feeds/$providerId': typeof FeedsProviderIdIndexRoute
 }
 
@@ -179,7 +179,7 @@ export interface FileRoutesByTo {
   '/signin': typeof SigninRoute
   '/dashboard': typeof DashboardIndexRoute
   '/feeds': typeof FeedsIndexRoute
-  '/feeds/$providerId/$entryId': typeof FeedsProviderIdEntryIdRoute
+  '/feeds/$providerId/$articleId': typeof FeedsProviderIdArticleIdRoute
   '/feeds/$providerId': typeof FeedsProviderIdIndexRoute
 }
 
@@ -191,7 +191,7 @@ export interface FileRoutesById {
   '/signin': typeof SigninRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/feeds/': typeof FeedsIndexRoute
-  '/feeds/$providerId/$entryId': typeof FeedsProviderIdEntryIdRoute
+  '/feeds/$providerId/$articleId': typeof FeedsProviderIdArticleIdRoute
   '/feeds/$providerId/': typeof FeedsProviderIdIndexRoute
 }
 
@@ -204,7 +204,7 @@ export interface FileRouteTypes {
     | '/signin'
     | '/dashboard/'
     | '/feeds/'
-    | '/feeds/$providerId/$entryId'
+    | '/feeds/$providerId/$articleId'
     | '/feeds/$providerId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -212,7 +212,7 @@ export interface FileRouteTypes {
     | '/signin'
     | '/dashboard'
     | '/feeds'
-    | '/feeds/$providerId/$entryId'
+    | '/feeds/$providerId/$articleId'
     | '/feeds/$providerId'
   id:
     | '__root__'
@@ -222,7 +222,7 @@ export interface FileRouteTypes {
     | '/signin'
     | '/dashboard/'
     | '/feeds/'
-    | '/feeds/$providerId/$entryId'
+    | '/feeds/$providerId/$articleId'
     | '/feeds/$providerId/'
   fileRoutesById: FileRoutesById
 }
@@ -270,7 +270,7 @@ export const routeTree = rootRoute
       "filePath": "feeds/route.tsx",
       "children": [
         "/feeds/",
-        "/feeds/$providerId/$entryId",
+        "/feeds/$providerId/$articleId",
         "/feeds/$providerId/"
       ]
     },
@@ -285,8 +285,8 @@ export const routeTree = rootRoute
       "filePath": "feeds/index.tsx",
       "parent": "/feeds"
     },
-    "/feeds/$providerId/$entryId": {
-      "filePath": "feeds/$providerId/$entryId.tsx",
+    "/feeds/$providerId/$articleId": {
+      "filePath": "feeds/$providerId/$articleId.tsx",
       "parent": "/feeds"
     },
     "/feeds/$providerId/": {

@@ -1,7 +1,7 @@
 import { load } from "cheerio";
 import { invariant } from "es-toolkit";
 import { ProviderId } from "~/shared/provider";
-import { type Provider, type RetrievedFeedEntry } from "./base";
+import { type Provider, type RetrievedArticle } from "./base";
 
 export class GithubTrendingProvider implements Provider {
   id = ProviderId.GithubTrending;
@@ -10,7 +10,7 @@ export class GithubTrendingProvider implements Provider {
     const baseUrl = new URL("https://github.com");
     const res = await fetch(new URL("/trending", baseUrl));
     const $ = await res.text().then(load);
-    const entries: RetrievedFeedEntry[] = [];
+    const articles: RetrievedArticle[] = [];
     for (const el of $("article.Box-row")) {
       const h2a = $(el).find("h2 a");
       const title = h2a.text().replaceAll(/\s+/g, "");
@@ -18,8 +18,8 @@ export class GithubTrendingProvider implements Provider {
       invariant(href, "href is required");
       const link = new URL(href, baseUrl).toString();
       const description = $(el).find("p").text().trim();
-      entries.push({ identifier: link, title, url: link, summary: description });
+      articles.push({ identifier: link, title, url: link, summary: description });
     }
-    return entries;
+    return articles;
   }
 }

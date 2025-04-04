@@ -1,7 +1,7 @@
 import { toDate } from "date-fns";
 import { pipe, string, transform } from "valibot";
 
-export type RetrievedFeedEntry = {
+export type RetrievedArticle = {
   identifier: string;
   title?: string;
   contentHTML?: string;
@@ -17,7 +17,7 @@ export type RetrievedFeedEntry = {
 
 export interface Provider {
   id: string;
-  retrieveFeed: () => Promise<RetrievedFeedEntry[]>;
+  retrieveFeed: () => Promise<RetrievedArticle[]>;
 }
 
 /** (e.g.) Thu, 03 Apr 2025 12:56:48 GMT */

@@ -11,8 +11,8 @@ const timestamps = {
 const uuid = () => char({ length: 36 });
 const uuidPk = () => uuid().primaryKey().$defaultFn(uuidv7);
 
-export const feedEntry = pgTable(
-  "feed_entry",
+export const articles = pgTable(
+  "articles",
   {
     id: uuidPk(),
     providerId: text().notNull(),

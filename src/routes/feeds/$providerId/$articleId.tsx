@@ -23,23 +23,23 @@ async function fetchArticleContent(url: string) {
 const summerizeWithAI = createServerFn({ method: "GET", response: "raw" })
   .validator(
     object({
-      entryId: string(),
+      articleId: string(),
     }),
   )
   .handler(async ({ data, signal }) => {
-    const entry = await db.query.feedEntry.findFirst({
-      where: (feedEntry, { eq }) => eq(feedEntry.id, data.entryId),
+    const article = await db.query.articles.findFirst({
+      where: (articles, { eq }) => eq(articles.id, data.articleId),
     });
-    if (!entry) throw notFound();
-    if (!entry.url) throw new Error("Entry URL is missing");
+    if (!article) throw notFound();
+    if (!article.url) throw new Error("Article URL is not available");
 
-    const article = await fetchArticleContent(entry.url);
-    invariant(article?.textContent, "Failed to parse article content");
+    const content = await fetchArticleContent(article.url);
+    invariant(content?.textContent, "Failed to parse article content");
 
     const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_GENAI_API_KEY });
     const resopnse = await ai.models.generateContentStream({
       model: "gemini-2.0-flash",
-      contents: article.textContent,
+      contents: content.textContent,
       config: { systemInstruction: SYSMTEM_INSTRUCTION },
     });
 
@@ -61,28 +61,30 @@ const summerizeWithAI = createServerFn({ method: "GET", response: "raw" })
     });
   });
 
-const getOriginalEntry = createServerFn({ method: "GET" })
+const getOriginalArticle = createServerFn({ method: "GET" })
   .validator(
     object({
       providerId: string(),
-      entryId: string(),
+      articleId: string(),
     }),
   )
   .handler(async ({ data }) => {
-    const entry = await db.query.feedEntry.findFirst({
-      where: (feedEntry, { and, eq }) =>
-        and(eq(feedEntry.providerId, data.providerId), eq(feedEntry.id, data.entryId)),
+    const article = await db.query.articles.findFirst({
+      where: (articles, { and, eq }) =>
+        and(eq(articles.providerId, data.providerId), eq(articles.id, data.articleId)),
     });
-    if (!entry) throw notFound();
-    return entry;
+    if (!article) throw notFound();
+    return article;
   });
 
-export const Route = createFileRoute("/feeds/$providerId/$entryId")({
+export const Route = createFileRoute("/feeds/$providerId/$articleId")({
   component: RouteComponent,
   loader: async ({ params }) => {
-    const { providerId, entryId } = params;
-    const entry = await getOriginalEntry({ data: { providerId, entryId } });
-    return { entry };
+    const { providerId, articleId } = params;
+    const article = await getOriginalArticle({
+      data: { providerId, articleId },
+    });
+    return { article };
   },
 });
 
@@ -95,13 +97,13 @@ function extractDomain(url: string) {
 }
 
 function RouteComponent() {
-  const { entry } = Route.useLoaderData();
+  const { article } = Route.useLoaderData();
   const [response, setResponse] = useState("");
 
   useEffect(() => {
     const controller = new AbortController();
 
-    summerizeWithAI({ data: { entryId: entry.id }, signal: controller.signal }).then(
+    summerizeWithAI({ data: { articleId: article.id }, signal: controller.signal }).then(
       async (res) => {
         const reader = res.body?.getReader();
         if (!reader) return;
@@ -123,24 +125,24 @@ function RouteComponent() {
     return () => {
       controller.abort();
     };
-  }, [entry.id]);
+  }, [article.id]);
 
   return (
     <div className="flex flex-col">
-      <h2 className="mt-4 text-2xl font-bold">{entry.title}</h2>
+      <h2 className="mt-4 text-2xl font-bold">{article.title}</h2>
       <div className="mt-2 flex items-center gap-3">
-        {entry.datePublished && (
+        {article.datePublished && (
           <div className="text-muted-foreground text-sm">
-            {format(entry.datePublished, DateFormat.dateTime)}
+            {format(article.datePublished, DateFormat.dateTime)}
           </div>
         )}
-        {entry.url && (
+        {article.url && (
           <a
-            href={entry.url}
+            href={article.url}
             target="_blank"
             className="text-muted-foreground flex items-center gap-1 text-sm"
           >
-            <span>{extractDomain(entry.url)}</span>
+            <span>{extractDomain(article.url)}</span>
             <ExternalLinkIcon className="size-3.5" />
           </a>
         )}
