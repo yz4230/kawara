@@ -1,8 +1,6 @@
-import { Link, Outlet, createFileRoute, redirect } from "@tanstack/react-router";
-import { Button } from "~/lib/components/ui/button";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/dashboard")({
-  component: DashboardLayout,
   beforeLoad: async ({ context }) => {
     if (!context.user) {
       throw redirect({ to: "/signin" });
@@ -13,23 +11,3 @@ export const Route = createFileRoute("/dashboard")({
     // https://tanstack.com/router/latest/docs/framework/react/guide/external-data-loading
   },
 });
-
-function DashboardLayout() {
-  return (
-    <div className="flex flex-col gap-4 p-4">
-      <h1 className="text-4xl font-bold">Dashboard Layout</h1>
-      <div className="flex items-center gap-2">
-        This is a protected layout:
-        <pre className="bg-card text-card-foreground rounded-md border p-1">
-          routes/dashboard/route.tsx
-        </pre>
-      </div>
-
-      <Button type="button" asChild className="w-fit" size="lg">
-        <Link to="/">Back to Home</Link>
-      </Button>
-
-      <Outlet />
-    </div>
-  );
-}

@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { object, string } from "valibot";
 import { Separator } from "~/lib/components/ui/separator";
 import { db } from "~/lib/server/db";
+import { extractDomain } from "~/lib/url";
 import SYSMTEM_INSTRUCTION from "~/prompts/summerize.txt?raw";
 import { DateFormat } from "~/shared/format";
 
@@ -87,14 +88,6 @@ export const Route = createFileRoute("/feeds/$providerId/$articleId")({
     return { article };
   },
 });
-
-function extractDomain(url: string) {
-  const { hostname } = new URL(url);
-  const domainParts = hostname.split(".");
-  // if the domain starts with "www.", remove it
-  if (domainParts.at(0) === "www") domainParts.shift();
-  return domainParts.join(".");
-}
 
 function RouteComponent() {
   const { article } = Route.useLoaderData();
