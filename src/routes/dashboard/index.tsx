@@ -181,7 +181,11 @@ function DashboardIndex() {
         <div style={{ height }} className="w-3xl overflow-y-auto border-x p-8">
           {article ? (
             <div className="flex flex-col gap-4">
-              <h2 className="text-xl font-bold">{article.title}</h2>
+              <a href={article.url ?? "#"} target="_blank">
+                <h2 className={cn("text-xl font-bold", article.url && "hover:underline")}>
+                  {article.title}
+                </h2>
+              </a>
               {article.datePublished && (
                 <div className="text-muted-foreground text-sm">
                   {format(article.datePublished, DateFormat.dateTime)}
