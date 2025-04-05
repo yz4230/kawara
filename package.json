@@ -81,5 +81,8 @@
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.28.0",
     "vite-tsconfig-paths": "^5.1.4"
+  },
+  "patchedDependencies": {
+    "nitropack@2.11.8": "patches/nitropack@2.11.8.patch"
   }
 }

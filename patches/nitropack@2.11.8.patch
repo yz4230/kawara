@@ -1,0 +1,24 @@
+diff --git a/node_modules/nitropack/.bun-tag-6489e8d034a6408a b/.bun-tag-6489e8d034a6408a
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/nitropack/.bun-tag-84eeba1fec0eec03 b/.bun-tag-84eeba1fec0eec03
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/dist/presets/bun/runtime/bun.mjs b/dist/presets/bun/runtime/bun.mjs
+index e46d1616dc6d6efa473e2d53a0884efc83fd7867..be1fadff619da30bac9bb4c5fad323457cf879e2 100644
+--- a/dist/presets/bun/runtime/bun.mjs
++++ b/dist/presets/bun/runtime/bun.mjs
+@@ -26,6 +26,13 @@ const server = Bun.serve({
+     });
+   }
+ });
++
++async function handleExit() {
++  await server.stop();
++}
++process.on("SIGINT", handleExit);
++process.on("SIGTERM", handleExit);
++
+ console.log(`Listening on http://localhost:${server.port}...`);
+ if (import.meta._tasks) {
+   startScheduleRunner();

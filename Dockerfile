@@ -7,6 +7,7 @@ WORKDIR /usr/src/app
 # this will cache them and speed up future builds
 FROM base AS build
 COPY package.json bun.lock ./
+COPY patches ./patches
 RUN bun install --frozen-lockfile
 
 # [optional] tests & build
