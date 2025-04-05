@@ -20,11 +20,11 @@ function RouteComponent() {
             <HomeIcon className="text-primary-foreground" />
           </span>
         </Link>
-        {Object.entries(providerMetas).map(([id, meta]) => (
+        {providerMetas.map((meta) => (
           <Link
-            key={id}
+            key={meta.id}
             to="/feeds/$providerId"
-            params={{ providerId: id }}
+            params={{ providerId: meta.id }}
             className={linkClassName}
           >
             <img
