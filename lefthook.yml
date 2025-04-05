@@ -4,5 +4,6 @@ pre-commit:
     - glob: "*.{js,ts,jsx,tsx}"
       run: bun eslint {staged_files}
 
-    - run: bun prettier --write {staged_files}
+    - glob: "*.{js,ts,jsx,tsx,json,css,scss,html}"
+      run: bun prettier --write {staged_files}
       stage_fixed: true
