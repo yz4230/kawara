@@ -1,10 +1,13 @@
-import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, redirect } from "@tanstack/react-router";
 import { HomeIcon } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { providerMetas } from "~/shared/provider";
 
 export const Route = createFileRoute("/feeds")({
   component: RouteComponent,
+  beforeLoad: () => {
+    throw redirect({ to: "/dashboard" });
+  },
 });
 
 const linkClassName = cn(

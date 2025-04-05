@@ -10,25 +10,21 @@ export const Route = createFileRoute("/signin")({
   component: AuthPage,
   beforeLoad: async ({ context }) => {
     if (context.user) {
-      throw redirect({
-        to: REDIRECT_URL,
-      });
+      throw redirect({ to: REDIRECT_URL });
     }
   },
 });
 
 function AuthPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="bg-card flex flex-col items-center gap-8 rounded-xl border p-10">
-        Logo here
-        <div className="flex flex-col gap-2">
-          <SignInButton
-            provider="google"
-            label="Google"
-            className="bg-[#DB4437] hover:bg-[#DB4437]/80"
-          />
-        </div>
+    <div className="bg-card mx-auto mt-10 flex w-xs flex-col items-center gap-8 rounded-xl border p-10">
+      <h2 className="text-xl font-bold">Sign in to your account</h2>
+      <div className="flex w-full flex-col gap-2">
+        <SignInButton
+          provider="google"
+          label="Google"
+          className="bg-[#DB4437] hover:bg-[#DB4437]/80"
+        />
       </div>
     </div>
   );
