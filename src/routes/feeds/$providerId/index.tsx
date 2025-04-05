@@ -36,7 +36,7 @@ function RouteComponent() {
   const { articles } = Route.useLoaderData();
 
   return (
-    <div className="mx-auto flex max-w-3xl flex-col border-x">
+    <div className="mx-auto flex w-full max-w-3xl flex-col border-x">
       {articles.map((article) => (
         <ArticleCard key={article.id} article={article} />
       ))}
