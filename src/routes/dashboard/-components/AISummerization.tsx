@@ -19,7 +19,7 @@ export default function AISummerization(props: { articleId: string }) {
         </div>
       )}
       <div
-        className="prose dark:prose-invert flex max-w-full flex-col whitespace-pre-line"
+        className="prose dark:prose-invert prose-sm flex max-w-full flex-col whitespace-pre-line"
         dangerouslySetInnerHTML={{ __html: summerization }}
       />
     </div>

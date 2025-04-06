@@ -18,6 +18,7 @@ import { db } from "~/lib/server/db";
 import type { ServerFnData } from "~/lib/tanstack-start";
 import { cn } from "~/lib/utils";
 import { DateFormat } from "~/shared/format";
+import AIFollowUp from "./-components/AIFollowUp";
 import AISummerization from "./-components/AISummerization";
 
 const DEFAULT_PAGE_INDEX = 0;
@@ -154,8 +155,8 @@ function DashboardIndex() {
       style={{ height: rect?.height, width: rect?.width }}
       className="fixed flex justify-center"
     >
-      <ScrollArea className="border-l">
-        <div className="flex w-xs shrink-0 flex-col">
+      <ScrollArea className="w-xs border-l">
+        <div className="flex w-xs flex-col">
           {articles?.map((article) => (
             <Link
               key={article.id}
@@ -181,7 +182,7 @@ function DashboardIndex() {
           ))}
         </div>
       </ScrollArea>
-      <ScrollArea className="border-x">
+      <ScrollArea className="w-full max-w-3xl border-x">
         <div className="w-full max-w-3xl p-8">
           {article ? (
             <div className="flex flex-col gap-4">
@@ -195,7 +196,8 @@ function DashboardIndex() {
                   {format(article.datePublished, DateFormat.dateTime)}
                 </div>
               )}
-              <AISummerization key={article.id} articleId={article.id} />
+              <AISummerization key={`${article.id}-summary`} articleId={article.id} />
+              <AIFollowUp key={`${article.id}-followup`} articleId={article.id} />
             </div>
           ) : (
             <div className="flex h-full items-center justify-center">

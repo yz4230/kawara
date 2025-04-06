@@ -58,6 +58,7 @@ export default tseslint.config(
       // "react-compiler/react-compiler": "warn",
       "@typescript-eslint/ban-ts-comment": "off",
       "@eslint-react/dom/no-dangerously-set-innerhtml": "off",
+      "@eslint-react/no-array-index-key": "off",
     },
   },
 );

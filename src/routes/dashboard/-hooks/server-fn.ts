@@ -1,18 +1,11 @@
 import { GoogleGenAI } from "@google/genai";
-import { Readability } from "@mozilla/readability";
 import { notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { invariant } from "es-toolkit";
-import { JSDOM } from "jsdom";
 import { object, string } from "valibot";
+import { fetchArticleContent } from "~/lib/crawl";
 import { db } from "~/lib/server/db";
 import SYSMTEM_INSTRUCTION from "~/prompts/summerize.txt?raw";
-
-async function fetchArticleContent(url: string) {
-  const html = await fetch(url).then((res) => res.text());
-  const dom = new JSDOM(html);
-  return new Readability(dom.window.document).parse();
-}
 
 export const summerizeWithAI = createServerFn({ method: "GET", response: "raw" })
   .validator(
