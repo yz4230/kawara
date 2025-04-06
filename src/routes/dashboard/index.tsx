@@ -121,17 +121,17 @@ function DashboardIndex() {
 
   const isClient = useIsClient();
 
-  const [height, setHeight] = useState<number>(0);
+  const [rect, setRect] = useState<DOMRect>();
   const refCallback = useCallback<RefCallback<HTMLDivElement>>((node) => {
     const parent = node?.parentElement;
     if (!parent) return;
 
     const rect = parent.getBoundingClientRect();
-    setHeight(rect.height);
+    setRect(rect);
 
     const resizeObserver = new ResizeObserver(([{ target }]) => {
       const rect = target.getBoundingClientRect();
-      setHeight(rect.height);
+      setRect(rect);
     });
 
     resizeObserver.observe(parent);
@@ -149,9 +149,13 @@ function DashboardIndex() {
   }
 
   return (
-    <div ref={refCallback} className="flex justify-center">
-      <ScrollArea>
-        <div style={{ height }} className="flex w-xs shrink-0 flex-col border-l">
+    <div
+      ref={refCallback}
+      style={{ height: rect?.height, width: rect?.width }}
+      className="fixed flex justify-center"
+    >
+      <ScrollArea className="border-l">
+        <div className="flex w-xs shrink-0 flex-col">
           {articles?.map((article) => (
             <Link
               key={article.id}
@@ -177,8 +181,8 @@ function DashboardIndex() {
           ))}
         </div>
       </ScrollArea>
-      <ScrollArea>
-        <div style={{ height }} className="w-3xl overflow-y-auto border-x p-8">
+      <ScrollArea className="border-x">
+        <div className="w-3xl p-8">
           {article ? (
             <div className="flex flex-col gap-4">
               <a href={article.url ?? "#"} target="_blank">
