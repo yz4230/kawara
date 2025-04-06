@@ -182,7 +182,7 @@ function DashboardIndex() {
         </div>
       </ScrollArea>
       <ScrollArea className="border-x">
-        <div className="w-3xl p-8">
+        <div className="w-full max-w-3xl p-8">
           {article ? (
             <div className="flex flex-col gap-4">
               <a href={article.url ?? "#"} target="_blank">
