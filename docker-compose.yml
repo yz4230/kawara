@@ -4,11 +4,14 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - postgres_data_tanstarter:/var/lib/postgresql/data
+      - ./db.local:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=tanstarter
-
-volumes:
-  postgres_data_tanstarter:
+      - POSTGRES_DB=kawara
+  kawara:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
