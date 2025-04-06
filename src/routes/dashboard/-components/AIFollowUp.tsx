@@ -2,6 +2,7 @@ import { useChat } from "@ai-sdk/react";
 import type { UIMessage } from "ai";
 import { SendIcon, SparkleIcon, UserIcon } from "lucide-react";
 import { match } from "ts-pattern";
+import { MemoizedMarkdown } from "~/lib/components/memorized-markdown";
 import { Button } from "~/lib/components/ui/button";
 import { Input } from "~/lib/components/ui/input";
 
@@ -58,12 +59,12 @@ function Message(props: { message: UIMessage }) {
           .when(
             (part) => part.type === "text",
             (part) => (
-              <div
+              <MemoizedMarkdown
                 key={`${props.message.id}-${i}`}
-                className="bg-accent rounded-lg border px-4 py-2 text-sm whitespace-pre-wrap"
+                className="bg-accent prose-sm rounded-lg border px-4 py-2"
               >
                 {part.text}
-              </div>
+              </MemoizedMarkdown>
             ),
           )
           .otherwise(() => null),

@@ -1,4 +1,5 @@
 import { SparkleIcon } from "lucide-react";
+import { MemoizedMarkdown } from "~/lib/components/memorized-markdown";
 import { Skeleton } from "~/lib/components/ui/skeleton";
 import useAISummerization from "../-hooks/useAISummerization";
 
@@ -18,10 +19,7 @@ export default function AISummerization(props: { articleId: string }) {
           <Skeleton className="h-4" />
         </div>
       )}
-      <div
-        className="prose dark:prose-invert prose-sm flex max-w-full flex-col whitespace-pre-line"
-        dangerouslySetInnerHTML={{ __html: summerization }}
-      />
+      <MemoizedMarkdown className="prose-sm">{summerization}</MemoizedMarkdown>
     </div>
   );
 }
