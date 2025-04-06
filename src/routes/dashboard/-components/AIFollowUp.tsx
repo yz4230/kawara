@@ -1,7 +1,6 @@
 import { useChat } from "@ai-sdk/react";
 import type { UIMessage } from "ai";
 import { SendIcon, SparkleIcon, UserIcon } from "lucide-react";
-import { match } from "ts-pattern";
 import { MemoizedMarkdown } from "~/lib/components/memorized-markdown";
 import { Button } from "~/lib/components/ui/button";
 import { Input } from "~/lib/components/ui/input";
@@ -54,21 +53,16 @@ function Message(props: { message: UIMessage }) {
           <SparkleIcon className="text-primary size-4.5" />
         )}
       </div>
-      {props.message.parts.map((part, i) =>
-        match(part)
-          .when(
-            (part) => part.type === "text",
-            (part) => (
-              <MemoizedMarkdown
-                key={`${props.message.id}-${i}`}
-                className="bg-accent prose-sm rounded-lg border px-4 py-2"
-              >
-                {part.text}
-              </MemoizedMarkdown>
-            ),
-          )
-          .otherwise(() => null),
-      )}
+      {props.message.parts
+        .filter((part) => part.type === "text")
+        .map((part, i) => (
+          <MemoizedMarkdown
+            key={`${props.message.id}-${i}`}
+            className="bg-accent prose-sm rounded-lg border px-4 py-2"
+          >
+            {part.text}
+          </MemoizedMarkdown>
+        ))}
     </div>
   );
 }
