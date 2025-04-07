@@ -39,6 +39,11 @@ ${content.textContent}`.trimStart();
       abortSignal: request.signal,
     });
 
-    return result.toDataStreamResponse();
+    return result.toDataStreamResponse({
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+      },
+    });
   },
 });

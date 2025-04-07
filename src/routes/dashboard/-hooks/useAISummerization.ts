@@ -43,7 +43,7 @@ const summerizeWithAI = createServerFn({ method: "GET", response: "raw" })
 
     return new Response(stream, {
       headers: {
-        "Content-Type": "text/plain",
+        "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
       },
     });
