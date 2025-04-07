@@ -23,4 +23,5 @@ COPY --from=build /usr/src/app/.output .output
 # run the app
 USER bun
 EXPOSE 3000/tcp
+ENV NODE_ENV=production
 ENTRYPOINT [ "bun", "run", ".output/server/index.mjs" ]
