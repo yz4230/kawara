@@ -34,6 +34,6 @@ export default defineConfig({
   server: {
     // https://tanstack.com/start/latest/docs/framework/react/hosting#deployment
     preset: "bun",
-    commonJS: { ignore: ["chalk", "json-stringify-safe"] },
+    commonJS: { ignore: ["chalk", "json-stringify-safe", "canonicalize"] },
   },
 });
