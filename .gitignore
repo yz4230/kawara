@@ -5,6 +5,7 @@ yarn.lock
 .DS_Store
 .cache
 .env
+.inngest
 *.local
 
 .data
