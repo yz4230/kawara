@@ -1,7 +1,7 @@
 import { SparkleIcon } from "lucide-react";
 import { MemoizedMarkdown } from "~/lib/components/memorized-markdown";
 import { Skeleton } from "~/lib/components/ui/skeleton";
-import useAISummerization from "../-hooks/useAISummerization";
+import useAISummerization from "./useAISummerization";
 
 export default function AISummerization(props: { articleId: string }) {
   const summerization = useAISummerization({ articleId: props.articleId });

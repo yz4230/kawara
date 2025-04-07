@@ -1,14 +1,10 @@
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createAPIFileRoute } from "@tanstack/react-start/api";
 import { notFound } from "@tanstack/router-core";
 import { streamText } from "ai";
 import { any, array, object, parser, string } from "valibot";
+import { gemini } from "~/lib/ai-models";
 import { fetchArticleContent } from "~/lib/crawl";
 import { db } from "~/lib/server/db";
-
-const google = createGoogleGenerativeAI({
-  apiKey: process.env.GOOGLE_GENAI_API_KEY,
-});
 
 const schema = object({
   messages: array(any()),
@@ -34,7 +30,7 @@ Article content:
 ${content.textContent}`.trimStart();
 
     const result = streamText({
-      model: google("gemini-2.0-flash"),
+      model: gemini,
       messages: [{ role: "system", content: systemInstruction }, ...body.messages],
       abortSignal: request.signal,
     });
