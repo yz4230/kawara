@@ -58,7 +58,7 @@ function Message(props: { message: UIMessage }) {
         .map((part, i) => (
           <MemoizedMarkdown
             key={`${props.message.id}-${i}`}
-            className="bg-accent prose-sm rounded-lg border px-4 py-2"
+            className="bg-accent prose-sm overflow-x-hidden rounded-lg border px-4 py-2"
           >
             {part.text}
           </MemoizedMarkdown>

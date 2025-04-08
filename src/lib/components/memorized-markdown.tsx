@@ -100,7 +100,6 @@ function render(token: Token, key: string): ReactNode {
       return (
         <table key={key}>
           <thead>
-            x
             <tr>
               {table.header.map((header, index) => (
                 <th key={index} style={{ textAlign: header.align ?? undefined }}>
