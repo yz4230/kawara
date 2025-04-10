@@ -3,9 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vinxi dev",
-    "build": "vinxi build",
-    "start": "vinxi start",
+    "dev": "bun run --bun vinxi dev",
+    "build": "bun run --bun vinxi build",
+    "start": "bun run --bun vinxi start",
     "lint": "eslint .",
     "format": "prettier --write .",
     "db": "drizzle-kit",
