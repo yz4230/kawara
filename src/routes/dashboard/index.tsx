@@ -1,16 +1,19 @@
 import {
+  infiniteQueryOptions,
   isServer,
   keepPreviousData,
   queryOptions,
+  useInfiniteQuery,
   useQuery,
 } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { format } from "date-fns";
-import { isUndefined } from "es-toolkit";
+import { isString } from "es-toolkit";
+import { isNumber } from "es-toolkit/compat";
 import { LoaderCircleIcon } from "lucide-react";
 import { RefCallback, useCallback, useState } from "react";
-import { useIsClient } from "usehooks-ts";
+import { useIntersectionObserver, useIsClient } from "usehooks-ts";
 import { number, object, optional, string } from "valibot";
 import { ScrollArea } from "~/lib/components/ui/scroll-area";
 import { authMiddleware } from "~/lib/middleware/auth-guard";
@@ -22,7 +25,7 @@ import AIFollowUp from "./-components/AIFollowUp";
 import AISummerization from "./-components/AISummerization";
 
 const DEFAULT_PAGE_INDEX = 0;
-const DEFAULT_PAGE_SIZE = 25;
+const DEFAULT_PAGE_SIZE = 20;
 
 const fetchArticles = createServerFn()
   .middleware([authMiddleware])
@@ -63,16 +66,24 @@ const fetchArticle = createServerFn()
     return article;
   });
 
-function articlesQuery(options?: ServerFnData<typeof fetchArticles>) {
-  return queryOptions({
-    queryKey: ["articles", options],
-    queryFn: () => fetchArticles({ data: options ?? {} }),
+function articlesInfiniteQuery(options?: ServerFnData<typeof fetchArticles>) {
+  return infiniteQueryOptions({
+    queryKey: [fetchArticles.url, options],
+    queryFn: ({ pageParam }) =>
+      fetchArticles({ data: { ...options, pageIndex: pageParam } }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, _, lastPageParam) => {
+      const isEnd = isNumber(options?.pageSize)
+        ? lastPage.length < options.pageSize
+        : lastPage.length < 0;
+      return isEnd ? undefined : lastPageParam + 1;
+    },
   });
 }
 
 function articleQuery(options: ServerFnData<typeof fetchArticle>) {
   return queryOptions({
-    queryKey: ["article", options],
+    queryKey: [fetchArticle.url, options],
     queryFn: () => fetchArticle({ data: options }),
   });
 }
@@ -81,21 +92,17 @@ export const Route = createFileRoute("/dashboard/")({
   component: DashboardIndex,
   validateSearch: object({
     articleId: optional(string()),
-    pageIndex: optional(number(), DEFAULT_PAGE_INDEX),
     pageSize: optional(number(), DEFAULT_PAGE_SIZE),
   }),
   loaderDeps: ({ search }) => ({ search }),
   loader: async ({ context, deps: { search } }) => {
     const promises: Promise<unknown>[] = [];
     promises.push(
-      context.queryClient.prefetchQuery(
-        articlesQuery({
-          pageIndex: search.pageIndex,
-          pageSize: search.pageSize,
-        }),
+      context.queryClient.prefetchInfiniteQuery(
+        articlesInfiniteQuery({ pageSize: search.pageSize }),
       ),
     );
-    if (!isUndefined(search.articleId)) {
+    if (isString(search.articleId)) {
       promises.push(
         context.queryClient.prefetchQuery(
           articleQuery({
@@ -109,18 +116,15 @@ export const Route = createFileRoute("/dashboard/")({
 });
 
 function DashboardIndex() {
-  const { articleId, pageIndex, pageSize } = Route.useSearch();
-  const { data: articles } = useQuery({
-    ...articlesQuery({ pageIndex, pageSize }),
-    placeholderData: keepPreviousData,
+  const { articleId, pageSize } = Route.useSearch();
+  const {
+    data: articles,
+    hasNextPage,
+    fetchNextPage,
+  } = useInfiniteQuery({
+    ...articlesInfiniteQuery({ pageSize }),
+    select: (data) => data.pages.flatMap((page) => page),
   });
-  const { data: article } = useQuery({
-    ...articleQuery({ articleId: articleId as string }),
-    enabled: !isUndefined(articleId),
-    placeholderData: keepPreviousData,
-  });
-
-  const isClient = useIsClient();
 
   const [rect, setRect] = useState<DOMRect>();
   const refCallback = useCallback<RefCallback<HTMLDivElement>>((node) => {
@@ -140,6 +144,8 @@ function DashboardIndex() {
       resizeObserver.disconnect();
     };
   }, []);
+
+  const isClient = useIsClient();
 
   if (!isClient) {
     return (
@@ -166,6 +172,7 @@ function DashboardIndex() {
               )}
               to="/dashboard"
               search={{ articleId: article.id }}
+              preload={false}
             >
               <h2 className="line-clamp-2 text-sm font-bold">{article.title}</h2>
               {article.summary && (
@@ -180,25 +187,13 @@ function DashboardIndex() {
               )}
             </Link>
           ))}
+          {hasNextPage && <ScrollSentinel onIntersect={fetchNextPage} />}
         </div>
       </ScrollArea>
       <ScrollArea className="w-full max-w-3xl border-x">
         <div className="w-full max-w-3xl p-8">
-          {article ? (
-            <div className="flex flex-col gap-4">
-              <a href={article.url ?? "#"} target="_blank">
-                <h2 className={cn("text-xl font-bold", article.url && "hover:underline")}>
-                  {article.title}
-                </h2>
-              </a>
-              {article.datePublished && (
-                <div className="text-muted-foreground text-sm">
-                  {format(article.datePublished, DateFormat.dateTime)}
-                </div>
-              )}
-              <AISummerization key={`${article.id}-summary`} articleId={article.id} />
-              <AIFollowUp key={`${article.id}-followup`} articleId={article.id} />
-            </div>
+          {articleId ? (
+            <ArticlePane articleId={articleId} />
           ) : (
             <div className="flex h-full items-center justify-center">
               <h2 className="text-muted-foreground text-2xl font-bold">
@@ -208,6 +203,50 @@ function DashboardIndex() {
           )}
         </div>
       </ScrollArea>
+    </div>
+  );
+}
+
+function ArticlePane(props: { articleId: string }) {
+  const { data: article } = useQuery({
+    ...articleQuery({ articleId: props.articleId }),
+    placeholderData: keepPreviousData,
+  });
+
+  if (!article) {
+    return (
+      <div className="flex justify-center p-6">
+        <LoaderCircleIcon className="size-6 animate-spin" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <a href={article.url ?? "#"} target="_blank">
+        <h2 className={cn("text-xl font-bold", article.url && "hover:underline")}>
+          {article.title}
+        </h2>
+      </a>
+      {article.datePublished && (
+        <div className="text-muted-foreground text-sm">
+          {format(article.datePublished, DateFormat.dateTime)}
+        </div>
+      )}
+      <AISummerization key={`${article.id}-summary`} articleId={article.id} />
+      <AIFollowUp key={`${article.id}-followup`} articleId={article.id} />
+    </div>
+  );
+}
+
+function ScrollSentinel(props: { onIntersect?: () => void }) {
+  const { ref } = useIntersectionObserver({
+    onChange: (intersecting) => intersecting && props.onIntersect?.(),
+  });
+
+  return (
+    <div ref={ref} className="flex justify-center p-2">
+      <LoaderCircleIcon className="size-6 animate-spin" />
     </div>
   );
 }
