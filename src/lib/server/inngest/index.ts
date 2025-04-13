@@ -11,7 +11,7 @@ const collectFeed = inngest.createFunction(
     timeouts: { finish: "10s" },
     optimizeParallelism: true,
   },
-  { event: "feed/collect" },
+  { cron: "0 */6 * * *" },
   async ({ step, logger }) => {
     await Promise.all(
       providers.map((provider) =>
