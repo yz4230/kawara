@@ -9,23 +9,33 @@ import {
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { format } from "date-fns";
-import { isString } from "es-toolkit";
+import { isString, isUndefined } from "es-toolkit";
 import { isNumber } from "es-toolkit/compat";
 import { LoaderCircleIcon } from "lucide-react";
 import { RefCallback, useCallback, useState } from "react";
 import { useIntersectionObserver, useIsClient } from "usehooks-ts";
 import { number, object, optional, string } from "valibot";
 import { ScrollArea } from "~/lib/components/ui/scroll-area";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/lib/components/ui/select";
 import { authMiddleware } from "~/lib/middleware/auth-guard";
 import { db } from "~/lib/server/db";
 import type { ServerFnData } from "~/lib/tanstack-start";
 import { cn } from "~/lib/utils";
 import { DateFormat } from "~/shared/format";
+import { providerMetas } from "~/shared/provider";
 import AIFollowUp from "./-components/AIFollowUp";
 import AISummerization from "./-components/AISummerization";
 
 const DEFAULT_PAGE_INDEX = 0;
 const DEFAULT_PAGE_SIZE = 20;
+
+const PROVIDER_ALL = "all";
 
 const fetchArticles = createServerFn()
   .middleware([authMiddleware])
@@ -38,10 +48,15 @@ const fetchArticles = createServerFn()
   )
   .handler(async ({ data }) => {
     const articles = await db.query.articles.findMany({
-      orderBy: (articles, { desc }) => [
+      where: (articles, { eq }) => {
+        if (isUndefined(data.providerId)) return undefined;
+        return eq(articles.providerId, data.providerId);
+      },
+      orderBy: (articles, { asc, desc }) => [
         desc(articles.datePublished),
         desc(articles.dateModified),
         desc(articles.createdAt),
+        asc(articles.title),
       ],
       limit: data.pageSize,
       offset: data.pageIndex * data.pageSize,
@@ -66,11 +81,19 @@ const fetchArticle = createServerFn()
     return article;
   });
 
-function articlesInfiniteQuery(options?: ServerFnData<typeof fetchArticles>) {
+function articlesInfiniteQuery(
+  options?: Omit<ServerFnData<typeof fetchArticles>, "pageIndex">,
+) {
   return infiniteQueryOptions({
-    queryKey: [fetchArticles.url, options],
-    queryFn: ({ pageParam }) =>
-      fetchArticles({ data: { ...options, pageIndex: pageParam } }),
+    queryKey: [fetchArticles.url, options ?? {}] as const,
+    queryFn: ({ pageParam, queryKey: [, { pageSize, providerId }] }) =>
+      fetchArticles({
+        data: {
+          pageSize,
+          pageIndex: pageParam,
+          providerId: providerId === PROVIDER_ALL ? undefined : providerId,
+        },
+      }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, _, lastPageParam) => {
       const isEnd = isNumber(options?.pageSize)
@@ -93,13 +116,17 @@ export const Route = createFileRoute("/dashboard/")({
   validateSearch: object({
     articleId: optional(string()),
     pageSize: optional(number(), DEFAULT_PAGE_SIZE),
+    providerId: optional(string()),
   }),
   loaderDeps: ({ search }) => ({ search }),
   loader: async ({ context, deps: { search } }) => {
     const promises: Promise<unknown>[] = [];
     promises.push(
       context.queryClient.prefetchInfiniteQuery(
-        articlesInfiniteQuery({ pageSize: search.pageSize }),
+        articlesInfiniteQuery({
+          pageSize: search.pageSize,
+          providerId: search.providerId,
+        }),
       ),
     );
     if (isString(search.articleId)) {
@@ -116,13 +143,14 @@ export const Route = createFileRoute("/dashboard/")({
 });
 
 function DashboardIndex() {
-  const { articleId, pageSize } = Route.useSearch();
+  const { articleId, pageSize, providerId } = Route.useSearch();
   const {
     data: articles,
     hasNextPage,
     fetchNextPage,
   } = useInfiniteQuery({
-    ...articlesInfiniteQuery({ pageSize }),
+    ...articlesInfiniteQuery({ pageSize, providerId }),
+    placeholderData: keepPreviousData,
     select: (data) => data.pages.flatMap((page) => page),
   });
 
@@ -145,6 +173,12 @@ function DashboardIndex() {
     };
   }, []);
 
+  const navigate = Route.useNavigate();
+  const handleChangeProviderId = useCallback(
+    (providerId: string) => navigate({ search: (prev) => ({ ...prev, providerId }) }),
+    [navigate],
+  );
+
   const isClient = useIsClient();
 
   if (!isClient) {
@@ -162,7 +196,35 @@ function DashboardIndex() {
       className="fixed flex justify-center"
     >
       <ScrollArea className="w-xs border-l">
-        <div className="flex w-xs flex-col">
+        <div className="fixed z-10 flex h-12 w-xs items-center px-2">
+          <Select
+            value={providerId ?? PROVIDER_ALL}
+            onValueChange={handleChangeProviderId}
+          >
+            <SelectTrigger className="w-full bg-white">
+              <SelectValue placeholder="Provider" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={PROVIDER_ALL}>ALL</SelectItem>
+              {providerMetas.map((provider) => (
+                <SelectItem
+                  key={provider.id}
+                  value={provider.id}
+                  textValue={provider.name}
+                  className="flex items-center gap-2"
+                >
+                  <img
+                    src={provider.icon}
+                    alt={provider.name}
+                    className="size-5 rounded-full"
+                  />
+                  <span>{provider.name}</span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="mt-12 flex w-xs flex-col">
           {articles?.map((article) => (
             <Link
               key={article.id}
@@ -171,7 +233,7 @@ function DashboardIndex() {
                 article.id === articleId && "bg-accent",
               )}
               to="/dashboard"
-              search={{ articleId: article.id }}
+              search={(prev) => ({ ...prev, articleId: article.id })}
               preload={false}
             >
               <h2 className="line-clamp-2 text-sm font-bold">{article.title}</h2>
