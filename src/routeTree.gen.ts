@@ -12,25 +12,15 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as SigninImport } from './routes/signin'
-import { Route as FeedsRouteImport } from './routes/feeds/route'
 import { Route as DashboardRouteImport } from './routes/dashboard/route'
 import { Route as IndexImport } from './routes/index'
-import { Route as FeedsIndexImport } from './routes/feeds/index'
 import { Route as DashboardIndexImport } from './routes/dashboard/index'
-import { Route as FeedsProviderIdIndexImport } from './routes/feeds/$providerId/index'
-import { Route as FeedsProviderIdArticleIdImport } from './routes/feeds/$providerId/$articleId'
 
 // Create/Update Routes
 
 const SigninRoute = SigninImport.update({
   id: '/signin',
   path: '/signin',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const FeedsRouteRoute = FeedsRouteImport.update({
-  id: '/feeds',
-  path: '/feeds',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -46,28 +36,10 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const FeedsIndexRoute = FeedsIndexImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => FeedsRouteRoute,
-} as any)
-
 const DashboardIndexRoute = DashboardIndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => DashboardRouteRoute,
-} as any)
-
-const FeedsProviderIdIndexRoute = FeedsProviderIdIndexImport.update({
-  id: '/$providerId/',
-  path: '/$providerId/',
-  getParentRoute: () => FeedsRouteRoute,
-} as any)
-
-const FeedsProviderIdArticleIdRoute = FeedsProviderIdArticleIdImport.update({
-  id: '/$providerId/$articleId',
-  path: '/$providerId/$articleId',
-  getParentRoute: () => FeedsRouteRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -88,13 +60,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRoute
     }
-    '/feeds': {
-      id: '/feeds'
-      path: '/feeds'
-      fullPath: '/feeds'
-      preLoaderRoute: typeof FeedsRouteImport
-      parentRoute: typeof rootRoute
-    }
     '/signin': {
       id: '/signin'
       path: '/signin'
@@ -108,27 +73,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/'
       preLoaderRoute: typeof DashboardIndexImport
       parentRoute: typeof DashboardRouteImport
-    }
-    '/feeds/': {
-      id: '/feeds/'
-      path: '/'
-      fullPath: '/feeds/'
-      preLoaderRoute: typeof FeedsIndexImport
-      parentRoute: typeof FeedsRouteImport
-    }
-    '/feeds/$providerId/$articleId': {
-      id: '/feeds/$providerId/$articleId'
-      path: '/$providerId/$articleId'
-      fullPath: '/feeds/$providerId/$articleId'
-      preLoaderRoute: typeof FeedsProviderIdArticleIdImport
-      parentRoute: typeof FeedsRouteImport
-    }
-    '/feeds/$providerId/': {
-      id: '/feeds/$providerId/'
-      path: '/$providerId'
-      fullPath: '/feeds/$providerId'
-      preLoaderRoute: typeof FeedsProviderIdIndexImport
-      parentRoute: typeof FeedsRouteImport
     }
   }
 }
@@ -147,97 +91,45 @@ const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
   DashboardRouteRouteChildren,
 )
 
-interface FeedsRouteRouteChildren {
-  FeedsIndexRoute: typeof FeedsIndexRoute
-  FeedsProviderIdArticleIdRoute: typeof FeedsProviderIdArticleIdRoute
-  FeedsProviderIdIndexRoute: typeof FeedsProviderIdIndexRoute
-}
-
-const FeedsRouteRouteChildren: FeedsRouteRouteChildren = {
-  FeedsIndexRoute: FeedsIndexRoute,
-  FeedsProviderIdArticleIdRoute: FeedsProviderIdArticleIdRoute,
-  FeedsProviderIdIndexRoute: FeedsProviderIdIndexRoute,
-}
-
-const FeedsRouteRouteWithChildren = FeedsRouteRoute._addFileChildren(
-  FeedsRouteRouteChildren,
-)
-
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
-  '/feeds': typeof FeedsRouteRouteWithChildren
   '/signin': typeof SigninRoute
   '/dashboard/': typeof DashboardIndexRoute
-  '/feeds/': typeof FeedsIndexRoute
-  '/feeds/$providerId/$articleId': typeof FeedsProviderIdArticleIdRoute
-  '/feeds/$providerId': typeof FeedsProviderIdIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/signin': typeof SigninRoute
   '/dashboard': typeof DashboardIndexRoute
-  '/feeds': typeof FeedsIndexRoute
-  '/feeds/$providerId/$articleId': typeof FeedsProviderIdArticleIdRoute
-  '/feeds/$providerId': typeof FeedsProviderIdIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
-  '/feeds': typeof FeedsRouteRouteWithChildren
   '/signin': typeof SigninRoute
   '/dashboard/': typeof DashboardIndexRoute
-  '/feeds/': typeof FeedsIndexRoute
-  '/feeds/$providerId/$articleId': typeof FeedsProviderIdArticleIdRoute
-  '/feeds/$providerId/': typeof FeedsProviderIdIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/dashboard'
-    | '/feeds'
-    | '/signin'
-    | '/dashboard/'
-    | '/feeds/'
-    | '/feeds/$providerId/$articleId'
-    | '/feeds/$providerId'
+  fullPaths: '/' | '/dashboard' | '/signin' | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/signin'
-    | '/dashboard'
-    | '/feeds'
-    | '/feeds/$providerId/$articleId'
-    | '/feeds/$providerId'
-  id:
-    | '__root__'
-    | '/'
-    | '/dashboard'
-    | '/feeds'
-    | '/signin'
-    | '/dashboard/'
-    | '/feeds/'
-    | '/feeds/$providerId/$articleId'
-    | '/feeds/$providerId/'
+  to: '/' | '/signin' | '/dashboard'
+  id: '__root__' | '/' | '/dashboard' | '/signin' | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
-  FeedsRouteRoute: typeof FeedsRouteRouteWithChildren
   SigninRoute: typeof SigninRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
-  FeedsRouteRoute: FeedsRouteRouteWithChildren,
   SigninRoute: SigninRoute,
 }
 
@@ -253,7 +145,6 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/dashboard",
-        "/feeds",
         "/signin"
       ]
     },
@@ -266,32 +157,12 @@ export const routeTree = rootRoute
         "/dashboard/"
       ]
     },
-    "/feeds": {
-      "filePath": "feeds/route.tsx",
-      "children": [
-        "/feeds/",
-        "/feeds/$providerId/$articleId",
-        "/feeds/$providerId/"
-      ]
-    },
     "/signin": {
       "filePath": "signin.tsx"
     },
     "/dashboard/": {
       "filePath": "dashboard/index.tsx",
       "parent": "/dashboard"
-    },
-    "/feeds/": {
-      "filePath": "feeds/index.tsx",
-      "parent": "/feeds"
-    },
-    "/feeds/$providerId/$articleId": {
-      "filePath": "feeds/$providerId/$articleId.tsx",
-      "parent": "/feeds"
-    },
-    "/feeds/$providerId/": {
-      "filePath": "feeds/$providerId/index.tsx",
-      "parent": "/feeds"
     }
   }
 }
