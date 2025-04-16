@@ -1,8 +1,7 @@
-import { SelectTrigger } from "@radix-ui/react-select";
-import { identity } from "es-toolkit";
+import { SelectTrigger, type SelectProps } from "@radix-ui/react-select";
 import { MonitorIcon, MoonIcon, SunIcon } from "lucide-react";
 import { useEffect } from "react";
-import { useLocalStorage } from "usehooks-ts";
+import useTheme from "~/routes/-hooks/useTheme";
 import ClientOnly from "./client-only";
 import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem } from "./ui/select";
@@ -23,20 +22,16 @@ export default function ThemeButton() {
 }
 
 export function ThemeButtonClient() {
-  const [theme, setTheme] = useLocalStorage(
-    "theme",
-    () => (document.documentElement.classList.contains("dark") ? "dark" : "system"),
-    {
-      serializer: identity,
-      deserializer: identity,
-      initializeWithValue: false,
-    },
-  );
+  const [theme, setTheme] = useTheme();
 
   useEffect(() => updateTheme(), [theme]);
 
   return (
-    <Select value={theme} onValueChange={setTheme} defaultValue="system">
+    <Select
+      value={theme}
+      onValueChange={setTheme as SelectProps["onValueChange"]}
+      defaultValue="system"
+    >
       <SelectTrigger asChild>
         <Button variant="outline" size="icon" type="button">
           <span className="animate-in fade-in">
